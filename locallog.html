@@ -1,0 +1,86 @@
+<html class="no-js">
+<head>
+<title>LocalLog Viewer</title>
+<script src="jquery/jquery.js"></script>
+<script src="modernizr/modernizr.js"></script>
+<script src="js/locallog.js"></script>
+<link href="bootstrap/css/bootstrap.css" rel="stylesheet">
+
+<style type="text/css">
+body {
+	width: 98%;
+	margin: 0 auto 0 auto;
+	padding-top: 10px;
+	padding-bottom: 40px;
+}
+
+#clear-btn {
+	float: right;
+}
+</style>
+
+<script type="text/javascript">
+$(function() {
+	var $logItems = $('#logTable tbody')
+	for (var i=1; i<=LocalLog.lastLineNo; ++i) {
+		var log = LocalLog.getItem(i);
+		//console.log(i + ": " + log);
+		var fields = log.split(' ', 2);
+		var date = new Date();
+		date.setTime(fields[0]);
+		date = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + ' ' + date.toLocaleTimeString();
+		var file = fields[1];
+		var msg = log.substring(log.indexOf(' ', 15)+1);
+		$logItems.append('<tr><td>' + i + '</td><td>' + date + '</td><td>' + file + '</td><td>' + msg + '</td></tr>');
+	}
+
+
+	$('#clear-btn').click(function() {
+	    LocalLog.clear();
+	    $('#logTable tbody').empty();
+	});
+
+	$('#search-form button[type="submit"]').click(function() {
+		var key = $('#search-form input[name="key"]').val();
+		console.log('search ' + key);
+		$('#logTable tbody tr').show();
+		
+		if (key != '') {
+			$('#logTable tbody tr:has(td):not(:contains("' + key + '"))').hide();
+		}
+		
+		return false;
+	})
+});
+
+</script>
+
+</head>
+
+<body>
+  <div>
+    <a id="clear-btn" href="#" class="btn">Clear all</a>
+  </div>
+  <div>
+    <form id="search-form" class="form-search">
+      <input name="key" type="text" placeholder="filter text..." class="input-medium search-query">
+      <button type="submit" class="btn">Search</button>
+    </form>
+  </div>
+  <table id="logTable" class="table table-bordered table-striped table-hover">
+    <caption>
+      <h3>LocalLog Viewer</h3>
+    </caption>
+    <thead>
+      <tr>
+        <th>No</th>
+        <th>Date</th>
+        <th>File</th>
+        <th>Message</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+</body>
+</html>
