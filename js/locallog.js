@@ -1,5 +1,5 @@
 /* ===================================================
- * locallog.js v1.0.0
+ * locallog.js v1.0.1
  * https://github.com/mingchen/locallog.js
  * ===================================================
  * Copyright 2012 Ming Chen.
@@ -23,60 +23,62 @@
 var LocalLog;
 if (!LocalLog) LocalLog = {};
 if (!LocalLog.lastLineNo) {
-	if (Modernizr.localstorage) {
-		var lastLineNo = localStorage['LocalLog.lastLineNo'];
-		if (lastLineNo && lastLineNo.length && lastLineNo != "NaN") {
-			LocalLog.lastLineNo = parseInt(lastLineNo);
-		} else {
-			LocalLog.lastLineNo = 0;
-		}
-	}
+    if (Modernizr.localstorage) {
+        var lastLineNo = localStorage['LocalLog.lastLineNo'];
+        if (lastLineNo && lastLineNo.length && lastLineNo != "NaN") {
+            LocalLog.lastLineNo = parseInt(lastLineNo);
+        } else {
+            LocalLog.lastLineNo = 0;
+        }
+    }
 }
 
 /**
  * Write a debug log
  */
 LocalLog.debug = function(msg) {
-	return LocalLog._log(msg);
+    return LocalLog._log(msg);
 }
 
 LocalLog._log = function(msg) {
-	if (Modernizr.localstorage) {
-		var now = (new Date()).getTime();
-		var host = location.href.substring(location.href.indexOf('//') + 2);
-		var path = host.substring(host.indexOf('/'));
-		var logMessage = now + ' ' + path + ' ' + msg;
-		LocalLog.lastLineNo += 1;
-		localStorage[LocalLog.lastLineNo] = logMessage;
-		localStorage['LocalLog.lastLineNo'] = String(LocalLog.lastLineNo);
-	} else {
-		console.log('LocalLog is not supported, msg: ' + msg);
-	}
-	return LocalLog;
+    if (Modernizr.localstorage) {
+        var now = (new Date()).getTime();
+        var host = location.href.substring(location.href.indexOf('//') + 2);
+        var path = host.substring(host.indexOf('/'));
+        var logMessage = now + ' ' + path + ' ' + msg;
+        LocalLog.lastLineNo += 1;
+        var logKey = 'LocalLog.Record.' + String(LocalLog.lastLineNo);
+        localStorage[logKey] = logMessage;
+        localStorage['LocalLog.lastLineNo'] = String(LocalLog.lastLineNo);
+    } else {
+        console.log('LocalLog is not supported, msg: ' + msg);
+    }
+    return LocalLog;
 }
 
 /**
  * Get the log item for `id`
  */
 LocalLog.getItem = function(id) {
-	if (Modernizr.localstorage) {
-		return localStorage[id];
-	}
-	
-	return "";
+    if (Modernizr.localstorage) {
+        var logKey = 'LocalLog.Record.' + String(id);
+        return localStorage[logKey];
+    }
+
+    return "";
 }
 
 /**
  * Clear all local logs
  */
 LocalLog.clear = function() {
-	if (Modernizr.localstorage) {
-		for (var i=0; i<LocalLog.lastLineNo; ++i) {
-			localStorage.removeItem(i);
-		}
-		
-		LocalLog.lastLineNo = 0;
-		localStorage['LocalLog.lastLineNo'] = 0;
-	}
+    if (Modernizr.localstorage) {
+        for (var i=0; i<LocalLog.lastLineNo; ++i) {
+            localStorage.removeItem(i);
+        }
+
+        LocalLog.lastLineNo = 0;
+        localStorage['LocalLog.lastLineNo'] = 0;
+    }
 }
 
